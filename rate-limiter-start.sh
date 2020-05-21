@@ -54,10 +54,10 @@ ip link set dev "$TAP_DEV" up
 KERNEL_BOOT_ARGS="${KERNEL_BOOT_ARGS} ip=${FC_IP}::${TAP_IP}:${MASK_LONG}::eth0:off"
 
 # Start Firecracker API server
-rm -f "$API_SOCKET"
+#rm -f "$API_SOCKET"
 
-#./firecracker --api-sock "$API_SOCKET" --id "${SB_ID}" --seccomp-level 0 &
-screen -dmLS "fc-sb${SB_ID}" /usr/bin/env "$PWD/firecracker" --api-sock "$API_SOCKET" --id "57b56f96-257a-4239-87ce-d149a221f962"
+#./firecracker --api-sock "$API_SOCKET" --id "${SB_ID}" &
+#screen -dmLS "fc-sb${SB_ID}" /usr/bin/env "$PWD/firecracker" --api-sock "$API_SOCKET" --id "57b56f96-257a-4239-87ce-d149a221f962"
 
 sleep 0.015s
 
@@ -69,8 +69,9 @@ done
 
 curl_put '/logger' <<EOF
 {
-  "log_path": "$logfile",
-  "level": "Debug",
+  "log_fifo": "$logfile",
+  "metrics_fifo": "$metricsfile",
+  "level": "Info",
   "show_level": false,
   "show_log_origin": false
 }
@@ -98,19 +99,19 @@ curl_put '/drives/1' <<EOF
   "is_read_only": true
 }
 EOF
-
+#
 #curl_put '/drives/2' <<EOF
 #{
 #  "drive_id": "2",
-#  "path_on_host": "$PWD/drives/a",
+#  "path_on_host": "$RW_DRIVE",
 #  "is_root_device": false,
 #  "is_read_only": false
 #}
 #EOF
 
-curl_put '/network-interfaces/net1' <<EOF
+curl_put '/network-interfaces/1' <<EOF
 {
-  "iface_id": "net1",
+  "iface_id": "1",
   "guest_mac": "$FC_MAC",
   "host_dev_name": "$TAP_DEV",
   "tx_rate_limiter": {
